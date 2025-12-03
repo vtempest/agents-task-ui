@@ -1,0 +1,1 @@
+export { ModelAvatar } from './ModelAvatar';
