@@ -1,38 +1,7 @@
-<div align="center">
 
-# Kortix – Open Source Platform to Build, Manage and Train AI Agents
+### 🔧 Custom Workflow Agents - Chat Web & Mobile UI
 
-![Kortix Screenshot](frontend/public/banner.png)
-
-**The complete platform for creating autonomous AI agents that work for you**
-
-Kortix is a comprehensive open source platform that empowers you to build, manage, and train sophisticated AI agents for any use case. Create powerful agents that act autonomously on your behalf, from general-purpose assistants to specialized automation tools.
-
-[![License](https://img.shields.io/badge/License-Apache--2.0-blue)](./license)
-[![Discord Follow](https://dcbadge.limes.pink/api/server/Py6pCBUUPw?style=flat)](https://discord.gg/RvFhXUdZ9H)
-[![Twitter Follow](https://img.shields.io/twitter/follow/kortix)](https://x.com/korti)
-[![GitHub Repo stars](https://img.shields.io/github/stars/kortix-ai/suna)](https://github.com/kortix-ai/suna)
-[![Issues](https://img.shields.io/github/issues/kortix-ai/suna)](https://github.com/kortix-ai/suna/labels/bug)
-
-<!-- Keep these links. Translations will automatically update with the README. -->
-[Deutsch](https://www.readme-i18n.com/kortix-ai/suna?lang=de) | 
-[Español](https://www.readme-i18n.com/kortix-ai/suna?lang=es) | 
-[français](https://www.readme-i18n.com/kortix-ai/suna?lang=fr) | 
-[日本語](https://www.readme-i18n.com/kortix-ai/suna?lang=ja) | 
-[한국어](https://www.readme-i18n.com/kortix-ai/suna?lang=ko) | 
-[Português](https://www.readme-i18n.com/kortix-ai/suna?lang=pt) | 
-[Русский](https://www.readme-i18n.com/kortix-ai/suna?lang=ru) | 
-[中文](https://www.readme-i18n.com/kortix-ai/suna?lang=zh)
-
-</div>
-
-## 🌟 What Makes Kortix Special
-
-### 🤖 Includes Suna – Flagship Generalist AI Worker
-Meet Suna, our showcase agent that demonstrates the full power of the Kortix platform. Through natural conversation, Suna handles research, data analysis, browser automation, file management, and complex workflows – showing you what's possible when you build with Kortix.
-
-### 🔧 Build Custom Suna-Type Agents
-Create your own specialized agents tailored to specific domains, workflows, or business needs. Whether you need agents for customer service, data processing, content creation, or industry-specific tasks, Kortix provides the infrastructure and tools to build, deploy, and scale them.
+Create your own specialized agents tailored to specific domains, workflows, or business needs. Whether you need agents for customer service, data processing, content creation, or industry-specific tasks, this provides the infrastructure and tools to build, deploy, and scale them.
 
 ### 🚀 Complete Platform Capabilities
 - **Browser Automation**: Navigate websites, extract data, fill forms, automate web workflows
@@ -42,21 +11,7 @@ Create your own specialized agents tailored to specific domains, workflows, or b
 - **API Integrations**: Connect with external services and automate cross-platform workflows
 - **Agent Builder**: Visual tools to configure, customize, and deploy agents
 
-## 📋 Table of Contents
-
-- [🌟 What Makes Kortix Special](#-what-makes-kortix-special)
-- [🎯 Agent Examples & Use Cases](#-agent-examples--use-cases)
-- [🏗️ Platform Architecture](#️-platform-architecture)
-- [🚀 Quick Start](#-quick-start)
-- [🏠 Self-Hosting](#-self-hosting)
-- [🤝 Contributing](#-contributing)
-- [📄 License](#-license)
-
 ## 🎯 Agent Examples & Use Cases
-
-### Suna - Your Generalist AI Worker
-
-Suna demonstrates the full capabilities of the Kortix platform as a versatile AI worker that can:
 
 **🔍 Research & Analysis**
 - Conduct comprehensive web research across multiple sources
@@ -144,41 +99,12 @@ Supabase-powered data layer handling authentication, user management, agent conf
 
 ## 🚀 Quick Start
 
-Get your Kortix platform running in minutes with our automated setup wizard:
-
-### 1️⃣ Clone the Repository
-```bash
-git clone https://github.com/kortix-ai/suna.git
-cd suna
-```
-
-### 2️⃣ Run the Setup Wizard
 ```bash
 python setup.py
 ```
 The wizard will guide you through 14 steps with progress saving, so you can resume if interrupted.
 
-### 3️⃣ Start the Platform
+### Start the Platform
 ```bash
 python start.py
 ```
-
-That's it! Your Kortix platform will be running with Suna ready to assist you.
-
-## 🏠 Self-Hosting
-
-Just use "setup.py". Ty mate.
-
-## 📄 License
-
-Kortix is licensed under the Apache License, Version 2.0. See [LICENSE](./LICENSE) for the full license text.
-
----
-
-<div align="center">
-
-**Ready to build your first AI agent?** 
-
-[Get Started](./docs/SELF-HOSTING.md) • [Join Discord](https://discord.gg/RvFhXUdZ9H) • [Follow on Twitter](https://x.com/kortix)
-
-</div>
