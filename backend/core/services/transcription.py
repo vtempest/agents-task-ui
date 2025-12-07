@@ -1,5 +1,5 @@
 import os
-import openai
+from groq import Groq
 import tempfile
 from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 from pydantic import BaseModel
@@ -17,11 +17,11 @@ async def transcribe_audio(
     audio_file: UploadFile = File(...),
     user_id: str = Depends(verify_and_get_user_id_from_jwt)
 ):
-    """Transcribe audio file to text using OpenAI Whisper."""
+    """Transcribe audio file to text using Groq Whisper."""
     try:
-        # Validate file type - OpenAI supports these formats
+        # Validate file type - Groq Whisper supports these formats
         allowed_types = [
-            'audio/mp3', 'audio/mpeg', 'audio/mp4', 'audio/m4a', 
+            'audio/mp3', 'audio/mpeg', 'audio/mp4', 'audio/m4a',
             'audio/wav', 'audio/webm', 'audio/mpga',
             'audio/x-m4a', 'audio/x-mp4', 'audio/x-wav', 'audio/x-webm'
         ]
@@ -42,22 +42,22 @@ async def transcribe_audio(
         # Reset file pointer
         await audio_file.seek(0)
         
-        # Initialize OpenAI client
-        client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-        
+        # Initialize Groq client
+        client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+
         # Create a temporary file with the correct extension
         file_extension = audio_file.filename.split('.')[-1] if audio_file.filename and '.' in audio_file.filename else 'webm'
-        
+
         with tempfile.NamedTemporaryFile(delete=False, suffix=f'.{file_extension}') as temp_file:
             temp_file.write(content)
             temp_file_path = temp_file.name
-        
+
         try:
             # Transcribe audio using the temporary file
-            # OpenAI Whisper API has built-in limits: 25MB file size and handles duration limits internally
+            # Groq Whisper API has built-in limits: 25MB file size and handles duration limits internally
             with open(temp_file_path, 'rb') as f:
                 transcription = client.audio.transcriptions.create(
-                    model="gpt-4o-mini-transcribe",
+                    model="whisper-large-v3",
                     file=f,
                     response_format="text"
                 )

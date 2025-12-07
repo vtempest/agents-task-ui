@@ -4,7 +4,7 @@ from enum import Enum
 
 
 class ModelProvider(Enum):
-    OPENAI = "openai"
+    GROQ = "groq"
     ANTHROPIC = "anthropic"
     BEDROCK = "bedrock"
     OPENROUTER = "openrouter"

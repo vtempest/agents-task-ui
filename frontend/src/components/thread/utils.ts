@@ -498,12 +498,12 @@ function formatMCPToolName(serverName: string, toolName: string): string {
   const serverMappings: Record<string, string> = {
     'exa': 'Exa Search',
     'github': 'GitHub',
-    'notion': 'Notion', 
+    'notion': 'Notion',
     'slack': 'Slack',
     'filesystem': 'File System',
     'memory': 'Memory',
     'anthropic': 'Anthropic',
-    'openai': 'OpenAI',
+    'groq': 'Groq',
     'composio': 'Composio',
     'langchain': 'LangChain',
     'llamaindex': 'LlamaIndex'
