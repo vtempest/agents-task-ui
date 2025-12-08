@@ -12,8 +12,8 @@ class VoiceConfig:
 
 @dataclass
 class ModelConfig:
-    provider: str = "openai"
-    model: str = "gpt-5-mini"
+    provider: str = "groq"
+    model: str = "llama-3.3-70b-versatile"
     temperature: float = 0.7
     max_tokens: Optional[int] = None
     messages: list = field(default_factory=lambda: [
@@ -60,16 +60,11 @@ class VapiConfig:
     })
     
     model_options: Dict[str, list] = field(default_factory=lambda: {
-        "openai": [
-            "gpt-4",
-            "gpt-4-turbo",
-            "gpt-3.5-turbo",
-            "gpt-3.5-turbo-16k"
-        ],
-        "anthropic": [
-            "claude-3-opus",
-            "claude-3-sonnet",
-            "claude-3-haiku"
+        "groq": [
+            "llama-3.3-70b-versatile",
+            "llama-3.1-70b-versatile",
+            "mixtral-8x7b-32768",
+            "gemma2-9b-it"
         ]
     })
     
@@ -172,7 +167,5 @@ VOICE_PROVIDERS = {
 }
 
 MODEL_PROVIDERS = {
-    "openai": "OpenAI",
-    "anthropic": "Anthropic",
     "groq": "Groq"
 }

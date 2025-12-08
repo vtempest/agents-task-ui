@@ -89,6 +89,83 @@ class ModelRegistry:
             )
         ))
 
+        # Groq Models (Fast Inference)
+        self.register(Model(
+            id="groq/llama-3.3-70b-versatile",
+            name="Llama 3.3 70B",
+            provider=ModelProvider.GROQ,
+            aliases=["llama-3.3-70b-versatile", "llama-3.3-70b", "Llama 3.3 70B"],
+            context_window=128_000,
+            capabilities=[
+                ModelCapability.CHAT,
+                ModelCapability.FUNCTION_CALLING,
+            ],
+            pricing=ModelPricing(
+                input_cost_per_million_tokens=0.59,
+                output_cost_per_million_tokens=0.79
+            ),
+            tier_availability=["free", "paid"],
+            priority=99,
+            recommended=True,
+            enabled=True
+        ))
+
+        self.register(Model(
+            id="groq/llama-3.1-70b-versatile",
+            name="Llama 3.1 70B",
+            provider=ModelProvider.GROQ,
+            aliases=["llama-3.1-70b-versatile", "llama-3.1-70b", "Llama 3.1 70B"],
+            context_window=128_000,
+            capabilities=[
+                ModelCapability.CHAT,
+                ModelCapability.FUNCTION_CALLING,
+            ],
+            pricing=ModelPricing(
+                input_cost_per_million_tokens=0.59,
+                output_cost_per_million_tokens=0.79
+            ),
+            tier_availability=["free", "paid"],
+            priority=98,
+            enabled=True
+        ))
+
+        self.register(Model(
+            id="groq/mixtral-8x7b-32768",
+            name="Mixtral 8x7B",
+            provider=ModelProvider.GROQ,
+            aliases=["mixtral-8x7b-32768", "mixtral-8x7b", "Mixtral 8x7B"],
+            context_window=32_768,
+            capabilities=[
+                ModelCapability.CHAT,
+                ModelCapability.FUNCTION_CALLING,
+            ],
+            pricing=ModelPricing(
+                input_cost_per_million_tokens=0.24,
+                output_cost_per_million_tokens=0.24
+            ),
+            tier_availability=["free", "paid"],
+            priority=97,
+            enabled=True
+        ))
+
+        self.register(Model(
+            id="groq/gemma2-9b-it",
+            name="Gemma 2 9B",
+            provider=ModelProvider.GROQ,
+            aliases=["gemma2-9b-it", "gemma2-9b", "Gemma 2 9B"],
+            context_window=8_192,
+            capabilities=[
+                ModelCapability.CHAT,
+            ],
+            pricing=ModelPricing(
+                input_cost_per_million_tokens=0.20,
+                output_cost_per_million_tokens=0.20
+            ),
+            tier_availability=["free", "paid"],
+            priority=96,
+            enabled=True
+        ))
+
 
         # self.register(Model(
         #     id="anthropic/claude-haiku-4-5" if SHOULD_USE_ANTHROPIC else "bedrock/converse/arn:aws:bedrock:us-west-2:935064898258:application-inference-profile/heol2zyy5v48",

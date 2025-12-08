@@ -4,7 +4,7 @@ import { Cpu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export type ModelProvider =
-  | 'openai'
+  | 'groq'
   | 'anthropic'
   | 'google'
   | 'xai'
@@ -44,8 +44,8 @@ export function getModelProvider(modelId: string): ModelProvider {
   if (modelId.includes('anthropic') || modelId.includes('claude')) {
     return 'anthropic';
   }
-  if (modelId.includes('openai') || modelId.includes('gpt')) {
-    return 'openai';
+  if (modelId.includes('groq') || modelId.includes('llama') || modelId.includes('mixtral')) {
+    return 'groq';
   }
   if (modelId.includes('google') || modelId.includes('gemini')) {
     return 'google';
@@ -67,12 +67,12 @@ export function getModelProvider(modelId: string): ModelProvider {
   const parts = modelId.split('/');
   if (parts.length > 1) {
     const provider = parts[0].toLowerCase();
-    if (['openai', 'anthropic', 'google', 'xai', 'moonshotai', 'bedrock', 'openrouter'].includes(provider)) {
+    if (['groq', 'anthropic', 'google', 'xai', 'moonshotai', 'bedrock', 'openrouter'].includes(provider)) {
       return provider as ModelProvider;
     }
   }
 
-  return 'openai'; // Default fallback
+  return 'groq'; // Default fallback to Groq
 }
 
 /**
@@ -96,12 +96,12 @@ export function ModelProviderIcon({
   const iconMap: Record<ModelProvider, string> = {
     kortix: '/kortix-symbol.svg', // Kortix modes use the Kortix symbol
     anthropic: '/images/models/Anthropic.svg',
-    openai: '/images/models/OAI.svg',
+    groq: '/images/models/Groq.svg',
     google: '/images/models/Gemini.svg',
     xai: '/images/models/Grok.svg',
     moonshotai: '/images/models/Moonshot.svg',
     bedrock: '/images/models/Anthropic.svg', // Bedrock uses Anthropic models primarily
-    openrouter: '/images/models/OAI.svg', // Default to OpenAI icon for OpenRouter
+    openrouter: '/images/models/Groq.svg', // Default to Groq icon for OpenRouter
   };
 
   // Special handling for Kortix symbol - needs different invert behavior
@@ -162,7 +162,7 @@ export function getModelProviderName(modelId: string): string {
   const nameMap: Record<ModelProvider, string> = {
     kortix: 'Kortix',
     anthropic: 'Anthropic',
-    openai: 'OpenAI',
+    groq: 'Groq',
     google: 'Google',
     xai: 'xAI',
     moonshotai: 'Moonshot AI',

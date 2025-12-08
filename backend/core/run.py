@@ -42,7 +42,7 @@ class AgentConfig:
     project_id: str
     native_max_auto_continues: int = 25
     max_iterations: int = 100
-    model_name: str = "openai/gpt-5-mini"
+    model_name: str = "groq/llama-3.3-70b-versatile"
     agent_config: Optional[dict] = None
     trace: Optional[StatefulTraceClient] = None
     account_id: Optional[str] = None  # If provided, skip thread query in setup()
@@ -1041,7 +1041,7 @@ async def run_agent(
     thread_manager: Optional[ThreadManager] = None,
     native_max_auto_continues: int = 25,
     max_iterations: int = 100,
-    model_name: str = "openai/gpt-5-mini",
+    model_name: str = "groq/llama-3.3-70b-versatile",
     agent_config: Optional[dict] = None,    
     trace: Optional[StatefulTraceClient] = None,
     cancellation_event: Optional[asyncio.Event] = None,
