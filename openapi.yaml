@@ -1,0 +1,1192 @@
+openapi: 3.1.0
+info:
+  title: Kortix Agents Task UI API
+  description: |
+    Next.js API for managing AI agents, threads, messages, and agent runs.
+    This API provides a TypeScript/Next.js equivalent of the Python FastAPI backend.
+
+    ## Authentication
+    All endpoints (except /health and public project access) require JWT authentication via Supabase.
+    Include the access token in the Authorization header:
+    ```
+    Authorization: Bearer <your-jwt-token>
+    ```
+
+    ## Key Features
+    - **Agent Management**: Create, update, and manage AI agents with custom configurations
+    - **Thread Management**: Organize conversations in threads and projects
+    - **Message Handling**: Send and retrieve messages within threads
+    - **Agent Runs**: Execute agents and track their progress
+    - **Versioning**: Maintain multiple versions of agent configurations
+
+  version: 1.0.0
+  contact:
+    name: API Support
+    url: https://github.com/vtempest/agents-task-ui
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3000/api
+    description: Local development server
+  - url: https://kortix.com/api
+    description: Production server
+
+tags:
+  - name: system
+    description: Health checks and system status
+  - name: agents
+    description: AI agent management
+  - name: agent-versions
+    description: Agent version control
+  - name: threads
+    description: Conversation thread management
+  - name: messages
+    description: Message operations within threads
+  - name: agent-runs
+    description: Agent execution and monitoring
+  - name: projects
+    description: Project and workspace management
+
+paths:
+  /health:
+    get:
+      summary: Health Check
+      description: Check API and database connectivity status
+      operationId: healthCheck
+      tags:
+        - system
+      responses:
+        '200':
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheckResponse'
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /agents:
+    get:
+      summary: List Agents
+      description: Get paginated list of agents for authenticated user
+      operationId: listAgents
+      tags:
+        - agents
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+        - name: search
+          in: query
+          description: Search agents by name or description
+          schema:
+            type: string
+        - name: is_public
+          in: query
+          description: Filter by public/private agents
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: List of agents
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentsResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+    post:
+      summary: Create Agent
+      description: Create a new AI agent with custom configuration
+      operationId: createAgent
+      tags:
+        - agents
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentCreateRequest'
+      responses:
+        '201':
+          description: Agent created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /agents/{agentId}:
+    get:
+      summary: Get Agent
+      description: Get specific agent by ID
+      operationId: getAgent
+      tags:
+        - agents
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AgentId'
+      responses:
+        '200':
+          description: Agent details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    put:
+      summary: Update Agent
+      description: Update agent configuration (respects Suna default agent restrictions)
+      operationId: updateAgent
+      tags:
+        - agents
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AgentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentUpdateRequest'
+      responses:
+        '200':
+          description: Agent updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    delete:
+      summary: Delete Agent
+      description: Delete an agent and all associated data
+      operationId: deleteAgent
+      tags:
+        - agents
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AgentId'
+      responses:
+        '200':
+          description: Agent deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Agent deleted successfully
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /agents/{agentId}/versions:
+    get:
+      summary: List Agent Versions
+      description: Get all versions of an agent
+      operationId: listAgentVersions
+      tags:
+        - agent-versions
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AgentId'
+      responses:
+        '200':
+          description: List of agent versions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentVersionsResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    post:
+      summary: Create Agent Version
+      description: Create a new version of an agent configuration
+      operationId: createAgentVersion
+      tags:
+        - agent-versions
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AgentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentVersionCreateRequest'
+      responses:
+        '201':
+          description: Version created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  version:
+                    $ref: '#/components/schemas/AgentVersion'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /threads:
+    get:
+      summary: List Threads
+      description: Get paginated list of threads for authenticated user
+      operationId: listThreads
+      tags:
+        - threads
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: List of threads
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThreadsResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+    post:
+      summary: Create Thread
+      description: Create a new conversation thread
+      operationId: createThread
+      tags:
+        - threads
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ThreadCreateRequest'
+      responses:
+        '201':
+          description: Thread created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  thread:
+                    $ref: '#/components/schemas/Thread'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /threads/{threadId}:
+    get:
+      summary: Get Thread
+      description: Get specific thread by ID with project details
+      operationId: getThread
+      tags:
+        - threads
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ThreadId'
+      responses:
+        '200':
+          description: Thread details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  thread:
+                    $ref: '#/components/schemas/Thread'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    put:
+      summary: Update Thread
+      description: Update thread metadata or settings
+      operationId: updateThread
+      tags:
+        - threads
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ThreadId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                metadata:
+                  type: object
+                is_public:
+                  type: boolean
+                project_id:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Thread updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  thread:
+                    $ref: '#/components/schemas/Thread'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    delete:
+      summary: Delete Thread
+      description: Delete a thread and all associated messages
+      operationId: deleteThread
+      tags:
+        - threads
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ThreadId'
+      responses:
+        '200':
+          description: Thread deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Thread deleted successfully
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /threads/{threadId}/messages:
+    get:
+      summary: List Messages
+      description: Get all messages in a thread
+      operationId: listMessages
+      tags:
+        - messages
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ThreadId'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: List of messages
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessagesResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    post:
+      summary: Create Message
+      description: Add a new message to a thread
+      operationId: createMessage
+      tags:
+        - messages
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ThreadId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageCreateRequest'
+      responses:
+        '201':
+          description: Message created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    $ref: '#/components/schemas/Message'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /agent-runs:
+    get:
+      summary: List Agent Runs
+      description: Get agent runs with optional filters
+      operationId: listAgentRuns
+      tags:
+        - agent-runs
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+        - name: thread_id
+          in: query
+          description: Filter by thread ID
+          schema:
+            type: string
+            format: uuid
+        - name: agent_id
+          in: query
+          description: Filter by agent ID
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          description: Filter by run status
+          schema:
+            type: string
+            enum: [queued, running, completed, failed, cancelled]
+      responses:
+        '200':
+          description: List of agent runs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  runs:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AgentRun'
+                  pagination:
+                    $ref: '#/components/schemas/PaginationInfo'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+    post:
+      summary: Start Agent Run
+      description: |
+        Start a new agent execution.
+        Note: This creates the run record. For full agent execution with streaming,
+        the Python background worker is still required.
+      operationId: startAgentRun
+      tags:
+        - agent-runs
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentRunStartRequest'
+      responses:
+        '201':
+          description: Agent run started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentRunResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /agent-runs/{runId}:
+    get:
+      summary: Get Agent Run
+      description: Get status and details of a specific agent run
+      operationId: getAgentRun
+      tags:
+        - agent-runs
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: runId
+          in: path
+          required: true
+          description: Agent run ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Agent run details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  run:
+                    $ref: '#/components/schemas/AgentRun'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /projects/{projectId}:
+    get:
+      summary: Get Project
+      description: Get project details (supports public and authenticated access)
+      operationId: getProject
+      tags:
+        - projects
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: Project ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Project details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  project:
+                    $ref: '#/components/schemas/Project'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    put:
+      summary: Update Project
+      description: Update project details
+      operationId: updateProject
+      tags:
+        - projects
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: Project ID
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                icon_name:
+                  type: string
+                sandbox:
+                  type: object
+                is_public:
+                  type: boolean
+      responses:
+        '200':
+          description: Project updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  project:
+                    $ref: '#/components/schemas/Project'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    delete:
+      summary: Delete Project
+      description: Delete a project
+      operationId: deleteProject
+      tags:
+        - projects
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: Project ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Project deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Project deleted successfully
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Supabase JWT access token
+
+  parameters:
+    Page:
+      name: page
+      in: query
+      description: Page number (1-based)
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    Limit:
+      name: limit
+      in: query
+      description: Number of items per page
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 1000
+        default: 100
+    AgentId:
+      name: agentId
+      in: path
+      required: true
+      description: Agent ID
+      schema:
+        type: string
+        format: uuid
+    ThreadId:
+      name: threadId
+      in: path
+      required: true
+      description: Thread ID
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    HealthCheckResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ok, error]
+        timestamp:
+          type: string
+          format: date-time
+        service:
+          type: string
+          example: nextjs-api
+        error:
+          type: string
+
+    PaginationInfo:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 100
+        total:
+          type: integer
+          example: 250
+        pages:
+          type: integer
+          example: 3
+
+    Agent:
+      type: object
+      properties:
+        agent_id:
+          type: string
+          format: uuid
+        account_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: Customer Support Agent
+        description:
+          type: string
+          example: Handles customer inquiries and support tickets
+        system_prompt:
+          type: string
+          example: You are a helpful customer support agent...
+        model:
+          type: string
+          example: claude-3-5-sonnet-20241022
+        icon_name:
+          type: string
+          example: user-headset
+        icon_color:
+          type: string
+          example: "#3B82F6"
+        icon_background:
+          type: string
+          example: "#EFF6FF"
+        agentpress_tools:
+          type: object
+          additionalProperties: true
+        configured_mcps:
+          type: array
+          items:
+            type: object
+        custom_mcps:
+          type: array
+          items:
+            type: object
+        current_version_id:
+          type: string
+          format: uuid
+        version_count:
+          type: integer
+          example: 3
+        metadata:
+          type: object
+          additionalProperties: true
+        is_public:
+          type: boolean
+          default: false
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    AgentCreateRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+        description:
+          type: string
+        system_prompt:
+          type: string
+        model:
+          type: string
+          default: claude-3-5-sonnet-20241022
+        icon_name:
+          type: string
+        icon_color:
+          type: string
+        icon_background:
+          type: string
+        agentpress_tools:
+          type: object
+        configured_mcps:
+          type: array
+          items:
+            type: object
+        custom_mcps:
+          type: array
+          items:
+            type: object
+        metadata:
+          type: object
+        is_public:
+          type: boolean
+          default: false
+
+    AgentUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        system_prompt:
+          type: string
+        model:
+          type: string
+        icon_name:
+          type: string
+        icon_color:
+          type: string
+        icon_background:
+          type: string
+        agentpress_tools:
+          type: object
+        configured_mcps:
+          type: array
+          items:
+            type: object
+        custom_mcps:
+          type: array
+          items:
+            type: object
+        metadata:
+          type: object
+        is_public:
+          type: boolean
+
+    AgentResponse:
+      type: object
+      properties:
+        agent:
+          $ref: '#/components/schemas/Agent'
+
+    AgentsResponse:
+      type: object
+      properties:
+        agents:
+          type: array
+          items:
+            $ref: '#/components/schemas/Agent'
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+
+    AgentVersion:
+      type: object
+      properties:
+        version_id:
+          type: string
+          format: uuid
+        agent_id:
+          type: string
+          format: uuid
+        version_number:
+          type: integer
+          example: 2
+        version_name:
+          type: string
+          example: v2
+        system_prompt:
+          type: string
+        model:
+          type: string
+        agentpress_tools:
+          type: object
+        configured_mcps:
+          type: array
+          items:
+            type: object
+        custom_mcps:
+          type: array
+          items:
+            type: object
+        config:
+          type: object
+        is_active:
+          type: boolean
+        created_by:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+
+    AgentVersionCreateRequest:
+      type: object
+      properties:
+        version_name:
+          type: string
+        system_prompt:
+          type: string
+        model:
+          type: string
+        agentpress_tools:
+          type: object
+        configured_mcps:
+          type: array
+          items:
+            type: object
+        custom_mcps:
+          type: array
+          items:
+            type: object
+
+    AgentVersionsResponse:
+      type: object
+      properties:
+        versions:
+          type: array
+          items:
+            $ref: '#/components/schemas/AgentVersion'
+
+    Thread:
+      type: object
+      properties:
+        thread_id:
+          type: string
+          format: uuid
+        account_id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        metadata:
+          type: object
+          additionalProperties: true
+        is_public:
+          type: boolean
+          default: false
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        project:
+          $ref: '#/components/schemas/Project'
+
+    ThreadCreateRequest:
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+        metadata:
+          type: object
+        is_public:
+          type: boolean
+          default: false
+
+    ThreadsResponse:
+      type: object
+      properties:
+        threads:
+          type: array
+          items:
+            $ref: '#/components/schemas/Thread'
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+
+    Message:
+      type: object
+      properties:
+        message_id:
+          type: string
+          format: uuid
+        thread_id:
+          type: string
+          format: uuid
+        role:
+          type: string
+          enum: [user, assistant, system]
+        content:
+          type: string
+        metadata:
+          type: object
+          additionalProperties: true
+        created_at:
+          type: string
+          format: date-time
+
+    MessageCreateRequest:
+      type: object
+      required:
+        - role
+        - content
+      properties:
+        role:
+          type: string
+          enum: [user, assistant, system]
+        content:
+          type: string
+          minLength: 1
+        metadata:
+          type: object
+
+    MessagesResponse:
+      type: object
+      properties:
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+
+    Project:
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+        account_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: My Project
+        description:
+          type: string
+        icon_name:
+          type: string
+        sandbox:
+          type: object
+          additionalProperties: true
+        is_public:
+          type: boolean
+          default: false
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    AgentRun:
+      type: object
+      properties:
+        run_id:
+          type: string
+          format: uuid
+        thread_id:
+          type: string
+          format: uuid
+        agent_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [queued, running, completed, failed, cancelled]
+        error:
+          type: string
+        metadata:
+          type: object
+          additionalProperties: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        completed_at:
+          type: string
+          format: date-time
+
+    AgentRunStartRequest:
+      type: object
+      required:
+        - thread_id
+        - agent_id
+      properties:
+        thread_id:
+          type: string
+          format: uuid
+        agent_id:
+          type: string
+          format: uuid
+        message:
+          type: string
+          description: Optional user message to include with the run
+        metadata:
+          type: object
+
+    AgentRunResponse:
+      type: object
+      properties:
+        run:
+          $ref: '#/components/schemas/AgentRun'
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+
+  responses:
+    UnauthorizedError:
+      description: Authentication failed or missing token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: Authentication failed
+
+    ForbiddenError:
+      description: Access denied
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: Access denied
+
+    NotFoundError:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: Not found
+
+    BadRequestError:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: Invalid request
